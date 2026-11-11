@@ -3,6 +3,7 @@ import argparse
 import asyncio
 import os
 import plistlib
+import shutil
 import socket
 import subprocess
 import sys
@@ -37,7 +38,8 @@ def cmd_serve(_args) -> None:
     uvicorn.run(create_app(s), host=s.host, port=s.port, log_level="warning")
 
 
-SERVICE_NAME = "QAS Prep"  # the name System Settings > General > Login Items shows
+# The name System Settings > General > Login Items shows. "(TM App)" marks apps I built myself.
+SERVICE_NAME = "QAS Prep (TM App)"
 
 
 def launcher(folder: Path, name: str, command: list[str], cwd: Path) -> Path:
@@ -78,6 +80,9 @@ def cmd_install_service(_args) -> None:
     }
     PLIST.parent.mkdir(parents=True, exist_ok=True)
     _bootout()
+    for old in program.parent.iterdir():  # launchers left from earlier names
+        if old != program:
+            shutil.rmtree(old) if old.is_dir() else old.unlink()
     PLIST.write_bytes(plistlib.dumps(plist))
     subprocess.run(["launchctl", "bootstrap", f"gui/{os.getuid()}", str(PLIST)], check=True)
     print(f"Installed {PLIST.name}. It shows as \"{SERVICE_NAME}\" in System Settings > General > Login Items "
@@ -87,7 +92,7 @@ def cmd_install_service(_args) -> None:
 def cmd_uninstall_service(_args) -> None:
     _bootout()
     PLIST.unlink(missing_ok=True)
-    (load().data_dir / "service" / SERVICE_NAME).unlink(missing_ok=True)
+    shutil.rmtree(load().data_dir / "service", ignore_errors=True)
     print("Removed the background service. Your saved history is untouched.")
 
 

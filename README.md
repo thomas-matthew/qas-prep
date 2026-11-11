@@ -54,7 +54,7 @@ To keep it running in the background and start it at login:
 uv run qas-prep install-service
 ```
 
-It shows as **QAS Prep** in System Settings, then General, then Login Items: the agent starts a small launcher script with that name in `data/service/`, which then starts the app's Python. Logs go to `data/logs/serve.log`. After pulling an update, run `uv run qas-prep restart`. `uv run qas-prep uninstall-service` removes the background service; saved history stays.
+It shows as **QAS Prep (TM App)** in System Settings, then General, then Login Items: the agent starts a small launcher script with that name in `data/service/`, which then starts the app's Python. Logs go to `data/logs/serve.log`. After pulling an update, run `uv run qas-prep restart`. `uv run qas-prep uninstall-service` removes the background service; saved history stays.
 
 The server only answers requests from this Mac and private networks (home Wi‑Fi, Tailscale). Don't forward the port on your router.
 
