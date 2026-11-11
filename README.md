@@ -87,7 +87,7 @@ Optional, in `.env` or the environment:
 | `QAS_PORT` | `8770` | Port to listen on |
 | `QAS_HOST` | `0.0.0.0` | Address to listen on. `127.0.0.1` keeps it on this Mac only. |
 | `QAS_DATA_DIR` | `./data` | Where the database, backups and logs go |
-| `QAS_TUTOR_MODEL` | `sonnet` | Claude model for the tutor (`sonnet`, `opus` or a full model id) |
+| `QAS_TUTOR_MODEL` | `claude-opus-5-5` | Claude model for the tutor: a full model id, or an alias such as `opus` or `sonnet` |
 | `QAS_KEEP_BACKUPS` | `14` | Daily backups to keep |
 | `QAS_USE_API_KEY` | off | `1` to use `ANTHROPIC_API_KEY` instead of the subscription login |
 

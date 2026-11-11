@@ -49,7 +49,7 @@ def load() -> Settings:
         host=os.environ.get("QAS_HOST", "0.0.0.0"),
         port=int(os.environ.get("QAS_PORT", "8770")),
         data_dir=data,
-        tutor_model=os.environ.get("QAS_TUTOR_MODEL", "sonnet"),
+        tutor_model=os.environ.get("QAS_TUTOR_MODEL", "claude-opus-5-5"),
         keep_backups=int(os.environ.get("QAS_KEEP_BACKUPS", "14")),
         use_api_key=os.environ.get("QAS_USE_API_KEY") == "1",
     )
