@@ -1,0 +1,911 @@
+[
+ {
+  "id": "RN1",
+  "cat": "RN",
+  "b": -1.6,
+  "a": 1.1,
+  "calc": false,
+  "name": "Integer operations",
+  "tip": "Multiply before you add or subtract, and treat subtracting a negative as adding."
+ },
+ {
+  "id": "RN2",
+  "cat": "RN",
+  "b": -0.6,
+  "a": 1.2,
+  "calc": false,
+  "name": "Subtracting negatives in a fraction",
+  "tip": "a − (−b) = a + b. Simplify the numerator first, then reduce."
+ },
+ {
+  "id": "RN3",
+  "cat": "RN",
+  "b": 0.1,
+  "a": 1.2,
+  "calc": false,
+  "name": "Changes with negative numbers",
+  "tip": "Apply each change in order: a rise adds, a drop subtracts."
+ },
+ {
+  "id": "RN4",
+  "cat": "RN",
+  "b": 1.8,
+  "a": 1.3,
+  "calc": false,
+  "name": "Absolute value expressions",
+  "tip": "Evaluate inside the bars first. An absolute value is never negative."
+ },
+ {
+  "id": "RN5",
+  "cat": "RN",
+  "b": 1,
+  "a": 1.2,
+  "calc": false,
+  "name": "Order of operations with fractions",
+  "tip": "Multiply before adding, even when the numbers are fractions."
+ },
+ {
+  "id": "RP1",
+  "cat": "RP",
+  "b": -0.9,
+  "a": 1.2,
+  "calc": false,
+  "name": "Unit price",
+  "tip": "Unit price = total price ÷ number of items."
+ },
+ {
+  "id": "RP2",
+  "cat": "RP",
+  "b": -0.4,
+  "a": 1.2,
+  "calc": false,
+  "name": "One-step metric conversion",
+  "tip": "Going from a bigger unit to a smaller unit, multiply."
+ },
+ {
+  "id": "RP3",
+  "cat": "RP",
+  "b": 0.1,
+  "a": 1.2,
+  "calc": false,
+  "name": "Scaling a recipe",
+  "tip": "Multiply the original amount by (new quantity ÷ old quantity)."
+ },
+ {
+  "id": "RP4",
+  "cat": "RP",
+  "b": 0.4,
+  "a": 1.2,
+  "calc": true,
+  "name": "Rates with minutes and hours",
+  "tip": "Convert minutes to hours (÷ 60) before using a per-hour rate."
+ },
+ {
+  "id": "RP5",
+  "cat": "RP",
+  "b": 1.1,
+  "a": 1.3,
+  "calc": true,
+  "name": "Multistep unit conversion",
+  "tip": "Write the units at each step so they cancel: gallons per minute × minutes × liters per gallon."
+ },
+ {
+  "id": "RP6",
+  "cat": "RP",
+  "b": 0.3,
+  "a": 1.2,
+  "calc": true,
+  "name": "Percent decrease",
+  "tip": "Percent change = change ÷ original amount, not the new amount."
+ },
+ {
+  "id": "EX1",
+  "cat": "EX",
+  "b": -0.6,
+  "a": 1.2,
+  "calc": false,
+  "name": "Squares and roots in an expression",
+  "tip": "Evaluate the power and the root first, then subtract."
+ },
+ {
+  "id": "EX2",
+  "cat": "EX",
+  "b": 0.1,
+  "a": 1.2,
+  "calc": false,
+  "name": "Exponent rules",
+  "tip": "Same base multiplied: add exponents. Power of a power: multiply exponents."
+ },
+ {
+  "id": "EX3",
+  "cat": "EX",
+  "b": 0.5,
+  "a": 1.2,
+  "calc": false,
+  "name": "Scientific notation",
+  "tip": "Multiply the numbers, add the exponents, then adjust so the number is between 1 and 10."
+ },
+ {
+  "id": "EX4",
+  "cat": "EX",
+  "b": 0.9,
+  "a": 1.2,
+  "calc": false,
+  "name": "Negative exponents",
+  "tip": "a<sup>−n</sup> = 1 / a<sup>n</sup>. A negative exponent makes a reciprocal, not a negative number."
+ },
+ {
+  "id": "EX5",
+  "cat": "EX",
+  "b": 1.6,
+  "a": 1.3,
+  "calc": false,
+  "name": "Fractional exponents",
+  "tip": "For a<sup>p/q</sup>, take the q-th root first, then raise to the power p."
+ },
+ {
+  "id": "EX6",
+  "cat": "EX",
+  "b": 1,
+  "a": 1.2,
+  "calc": false,
+  "name": "Simplifying square roots",
+  "tip": "Pull out the largest perfect-square factor."
+ },
+ {
+  "id": "AE1",
+  "cat": "AE",
+  "b": -0.5,
+  "a": 1.2,
+  "calc": false,
+  "name": "Evaluating with a negative value",
+  "tip": "Put a negative value in parentheses when you substitute. A negative number squared is positive."
+ },
+ {
+  "id": "AE2",
+  "cat": "AE",
+  "b": -1.2,
+  "a": 1,
+  "calc": false,
+  "name": "Translating words to expressions",
+  "tip": "“Less than” reverses the order. “The sum of” needs parentheses when it is multiplied."
+ },
+ {
+  "id": "AE3",
+  "cat": "AE",
+  "b": 0.2,
+  "a": 1.2,
+  "calc": false,
+  "name": "Equivalent expressions",
+  "tip": "Distribute first, then combine like terms."
+ },
+ {
+  "id": "AE4",
+  "cat": "AE",
+  "b": 0.9,
+  "a": 1.2,
+  "calc": false,
+  "name": "Writing a cost expression",
+  "tip": "One-time amounts are added once. Per-unit amounts multiply their variable."
+ },
+ {
+  "id": "AE5",
+  "cat": "AE",
+  "b": 1.7,
+  "a": 1.3,
+  "calc": false,
+  "name": "Input of a nonlinear function",
+  "tip": "Set the function equal to the given output and solve for the input."
+ },
+ {
+  "id": "LE1",
+  "cat": "LE",
+  "b": -1.4,
+  "a": 1.1,
+  "calc": false,
+  "name": "Two-step equations",
+  "tip": "Undo the addition or subtraction first, then the multiplication."
+ },
+ {
+  "id": "LE2",
+  "cat": "LE",
+  "b": 0,
+  "a": 1.2,
+  "calc": false,
+  "name": "Equations with parentheses",
+  "tip": "Distribute, then move the x-terms to one side and the numbers to the other."
+ },
+ {
+  "id": "LE3",
+  "cat": "LE",
+  "b": 0.8,
+  "a": 1.2,
+  "calc": false,
+  "name": "Equations with fractions",
+  "tip": "Multiply every term by a common denominator to clear the fractions."
+ },
+ {
+  "id": "LE4",
+  "cat": "LE",
+  "b": 0.5,
+  "a": 1.2,
+  "calc": false,
+  "name": "Linear inequalities",
+  "tip": "Multiplying or dividing by a negative number flips the inequality sign."
+ },
+ {
+  "id": "LE5",
+  "cat": "LE",
+  "b": 0.6,
+  "a": 1.2,
+  "calc": false,
+  "name": "Systems by elimination",
+  "tip": "Add or subtract the equations so one variable cancels."
+ },
+ {
+  "id": "LA1",
+  "cat": "LA",
+  "b": -1.8,
+  "a": 1,
+  "calc": false,
+  "name": "Reading coordinates",
+  "tip": "(x, y): the horizontal position comes first, then the vertical."
+ },
+ {
+  "id": "LA2",
+  "cat": "LA",
+  "b": -0.7,
+  "a": 1.2,
+  "calc": false,
+  "name": "Substituting into a linear equation",
+  "tip": "Replace the known variable with its value, then solve for the other."
+ },
+ {
+  "id": "LA3",
+  "cat": "LA",
+  "b": -0.6,
+  "a": 1.2,
+  "calc": false,
+  "name": "Modeling with a linear equation",
+  "tip": "Total = rate × variable + one-time fee."
+ },
+ {
+  "id": "LA4",
+  "cat": "LA",
+  "b": 0,
+  "a": 1.2,
+  "calc": false,
+  "name": "Slope from two points",
+  "tip": "Slope = (y₂ − y₁) ÷ (x₂ − x₁). Keep the same point order on top and bottom."
+ },
+ {
+  "id": "LA5",
+  "cat": "LA",
+  "b": 0.3,
+  "a": 1.2,
+  "calc": false,
+  "name": "Line from an intercept and a point",
+  "tip": "Find the slope from the two points; the y-intercept is b."
+ },
+ {
+  "id": "LA6",
+  "cat": "LA",
+  "b": 0.4,
+  "a": 1.2,
+  "calc": false,
+  "name": "Line from a table",
+  "tip": "Slope = change in y ÷ change in x. Check your equation against every row."
+ },
+ {
+  "id": "LA7",
+  "cat": "LA",
+  "b": 0.9,
+  "a": 1.2,
+  "calc": false,
+  "name": "Interpreting slope and intercept",
+  "tip": "The constant is the starting value; the coefficient of the variable is the rate of change."
+ },
+ {
+  "id": "LA8",
+  "cat": "LA",
+  "b": 1.1,
+  "a": 1.2,
+  "calc": false,
+  "name": "Parallel lines",
+  "tip": "Parallel lines have the same slope. Use the given point to find b."
+ },
+ {
+  "id": "LA9",
+  "cat": "LA",
+  "b": 1.8,
+  "a": 1.3,
+  "calc": false,
+  "name": "Perpendicular lines",
+  "tip": "A perpendicular slope is the negative reciprocal: flip the fraction and change the sign."
+ },
+ {
+  "id": "LA10",
+  "cat": "LA",
+  "b": 0.5,
+  "a": 1.2,
+  "calc": false,
+  "name": "Line from a graph",
+  "tip": "Read b where the line crosses the y-axis, then count rise over run."
+ },
+ {
+  "id": "LA11",
+  "cat": "LA",
+  "b": 0.8,
+  "a": 1.2,
+  "calc": true,
+  "name": "System word problems",
+  "tip": "Write one equation for the number of things and one for the total value."
+ },
+ {
+  "id": "PS1",
+  "cat": "PS",
+  "b": -1.5,
+  "a": 1,
+  "calc": false,
+  "name": "Simple probability",
+  "tip": "Favorable outcomes ÷ total outcomes."
+ },
+ {
+  "id": "PS2",
+  "cat": "PS",
+  "b": 0.3,
+  "a": 1.2,
+  "calc": false,
+  "name": "Compound probability",
+  "tip": "Count outcomes in the full sample space, or multiply independent probabilities."
+ },
+ {
+  "id": "PS3",
+  "cat": "PS",
+  "b": 0.9,
+  "a": 1.3,
+  "calc": false,
+  "name": "Conditional probability from a table",
+  "tip": "The condition sets the denominator: use that row or column total, not the grand total."
+ },
+ {
+  "id": "PS4",
+  "cat": "PS",
+  "b": -0.3,
+  "a": 1.2,
+  "calc": false,
+  "name": "Union and intersection",
+  "tip": "∩ means in both sets; ∪ means in either set, listed once."
+ },
+ {
+  "id": "PS5",
+  "cat": "PS",
+  "b": 1.6,
+  "a": 1.3,
+  "calc": false,
+  "name": "Combined set operations",
+  "tip": "Do the operation in parentheses first."
+ },
+ {
+  "id": "PS6",
+  "cat": "PS",
+  "b": 1.7,
+  "a": 1.2,
+  "calc": false,
+  "name": "Probability without replacement",
+  "tip": "After each draw, reduce both the favorable count and the total by one."
+ },
+ {
+  "id": "DS1",
+  "cat": "DS",
+  "b": -1.7,
+  "a": 1,
+  "calc": false,
+  "name": "Reading a bar graph",
+  "tip": "Read each bar against the gridlines, then compare."
+ },
+ {
+  "id": "DS2",
+  "cat": "DS",
+  "b": -0.5,
+  "a": 1.2,
+  "calc": true,
+  "name": "Finding the mean",
+  "tip": "Add all the values, then divide by how many there are."
+ },
+ {
+  "id": "DS3",
+  "cat": "DS",
+  "b": -0.3,
+  "a": 1.2,
+  "calc": false,
+  "name": "Median of an even-sized set",
+  "tip": "Sort the values first, then average the two middle ones."
+ },
+ {
+  "id": "DS4",
+  "cat": "DS",
+  "b": 1,
+  "a": 1.2,
+  "calc": false,
+  "name": "Effect of an outlier",
+  "tip": "An extreme value pulls the mean much more than the median."
+ },
+ {
+  "id": "DS5",
+  "cat": "DS",
+  "b": 0.2,
+  "a": 1.2,
+  "calc": true,
+  "name": "Missing value from a mean",
+  "tip": "Total = mean × count. Subtract the known values from the total."
+ },
+ {
+  "id": "DS6",
+  "cat": "DS",
+  "b": 1.9,
+  "a": 1.3,
+  "calc": true,
+  "name": "Comparing two data sets",
+  "tip": "Find each mean and median separately; they can point in different directions."
+ },
+ {
+  "id": "DS7",
+  "cat": "DS",
+  "b": 0.4,
+  "a": 1.2,
+  "calc": false,
+  "name": "Change between paired bars",
+  "tip": "Compute each change. The tallest bar is not always the biggest increase."
+ },
+ {
+  "id": "DS8",
+  "cat": "DS",
+  "b": 0.7,
+  "a": 1.2,
+  "calc": false,
+  "name": "Reading a box plot",
+  "tip": "Range = maximum − minimum. IQR = Q3 − Q1, the width of the box."
+ },
+ {
+  "id": "G1a",
+  "cat": "G1",
+  "b": -1.5,
+  "a": 1,
+  "calc": false,
+  "name": "Rectangle perimeter",
+  "tip": "Perimeter = 2 × (length + width)."
+ },
+ {
+  "id": "G1b",
+  "cat": "G1",
+  "b": -0.6,
+  "a": 1.2,
+  "calc": false,
+  "name": "Triangle area",
+  "tip": "Area = ½ × base × height."
+ },
+ {
+  "id": "G1c",
+  "cat": "G1",
+  "b": 0.2,
+  "a": 1.2,
+  "calc": false,
+  "name": "Circle area and circumference",
+  "tip": "Area = πr² and circumference = 2πr. Halve a diameter to get the radius."
+ },
+ {
+  "id": "G1d",
+  "cat": "G1",
+  "b": 0.4,
+  "a": 1.2,
+  "calc": true,
+  "name": "Missing dimension of a prism",
+  "tip": "Height = volume ÷ (length × width)."
+ },
+ {
+  "id": "G2a",
+  "cat": "G2",
+  "b": 0.3,
+  "a": 1.2,
+  "calc": false,
+  "name": "Pythagorean theorem",
+  "tip": "a² + b² = c², where c is the hypotenuse, the longest side."
+ },
+ {
+  "id": "G2b",
+  "cat": "G2",
+  "b": 1,
+  "a": 1.2,
+  "calc": false,
+  "name": "Distance between points",
+  "tip": "Distance = √(Δx² + Δy²), the Pythagorean theorem on the grid."
+ },
+ {
+  "id": "G2c",
+  "cat": "G2",
+  "b": 0.5,
+  "a": 1.2,
+  "calc": false,
+  "name": "Single transformations",
+  "tip": "x-axis: (x, −y). y-axis: (−x, y). 90° counterclockwise: (−y, x). 90° clockwise: (y, −x). 180°: (−x, −y)."
+ },
+ {
+  "id": "G2d",
+  "cat": "G2",
+  "b": 1.7,
+  "a": 1.3,
+  "calc": false,
+  "name": "Perimeter and area expressions",
+  "tip": "Write the length in terms of w first, then put it into the formula."
+ },
+ {
+  "id": "G2e",
+  "cat": "G2",
+  "b": 1.9,
+  "a": 1.3,
+  "calc": false,
+  "name": "Two transformations in a row",
+  "tip": "Apply the transformations in the stated order, one at a time."
+ },
+ {
+  "id": "EX0",
+  "cat": "EX",
+  "b": -1.5,
+  "a": 1,
+  "calc": false,
+  "name": "Powers and square roots",
+  "tip": "a<sup>n</sup> means multiply a by itself n times. A square root undoes squaring."
+ },
+ {
+  "id": "RP0",
+  "cat": "RP",
+  "b": -1.4,
+  "a": 1,
+  "calc": false,
+  "name": "Simplifying a ratio",
+  "tip": "Divide both parts by their greatest common factor, and keep the order the question asks for."
+ },
+ {
+  "id": "RP7",
+  "cat": "RP",
+  "b": 1.6,
+  "a": 1.3,
+  "calc": true,
+  "name": "Converting km/h to m/s",
+  "tip": "Multiply by 1,000 (km to m) and divide by 3,600 (hours to seconds)."
+ },
+ {
+  "id": "PS0",
+  "cat": "PS",
+  "b": -0.9,
+  "a": 1,
+  "calc": false,
+  "name": "Spinner probability",
+  "tip": "Favorable sections ÷ total equal sections."
+ },
+ {
+  "id": "G2f",
+  "cat": "G2",
+  "b": -0.8,
+  "a": 1,
+  "calc": false,
+  "name": "Translating a point",
+  "tip": "Right or left changes x; up or down changes y."
+ },
+ {
+  "id": "G1e",
+  "cat": "G1",
+  "b": 1.3,
+  "a": 1.2,
+  "calc": false,
+  "name": "Scaling volume",
+  "tip": "Multiplying every length by k multiplies the volume by k³."
+ },
+ {
+  "id": "G1f",
+  "cat": "G1",
+  "b": 0.9,
+  "a": 1.2,
+  "calc": false,
+  "name": "Area with a cutout",
+  "tip": "Area of the whole shape minus the area of the cutout."
+ },
+ {
+  "id": "LE6",
+  "cat": "LE",
+  "b": 1.5,
+  "a": 1.3,
+  "calc": false,
+  "name": "Solving for y in terms of x",
+  "tip": "Move the x-term, then divide every term by the coefficient of y."
+ },
+ {
+  "id": "DS9",
+  "cat": "DS",
+  "b": -0.5,
+  "a": 1,
+  "calc": false,
+  "name": "Reading a scatter plot",
+  "tip": "Points rising left to right show a positive association; falling shows a negative one."
+ },
+ {
+  "id": "DS10",
+  "cat": "DS",
+  "b": 0.6,
+  "a": 1.2,
+  "calc": false,
+  "name": "Line of best fit",
+  "tip": "Estimate the y-intercept where the cloud of points starts, then the rise over run across the cloud."
+ },
+ {
+  "id": "DS11",
+  "cat": "DS",
+  "b": 0.1,
+  "a": 1.2,
+  "calc": false,
+  "name": "Predicting from a line of best fit",
+  "tip": "Substitute the given x-value into the line’s equation."
+ },
+ {
+  "id": "DS12",
+  "cat": "DS",
+  "b": -0.8,
+  "a": 1,
+  "calc": false,
+  "name": "Reading a histogram",
+  "tip": "Each bar counts the values in its interval. Add the bars that match the condition."
+ },
+ {
+  "id": "DS13",
+  "cat": "DS",
+  "b": -1.3,
+  "a": 1,
+  "calc": false,
+  "name": "Mode",
+  "tip": "The mode is the value that appears most often."
+ },
+ {
+  "id": "LA12",
+  "cat": "LA",
+  "b": -1,
+  "a": 1,
+  "calc": false,
+  "name": "Inequalities on a number line",
+  "tip": "Open circle: not included (< or >). Filled circle: included (≤ or ≥). The arrow shows the direction."
+ },
+ {
+  "id": "LA13",
+  "cat": "LA",
+  "b": 1.3,
+  "a": 1.2,
+  "calc": false,
+  "name": "Linear vs. nonlinear functions",
+  "tip": "Linear means x only to the first power: no squares, no x in an exponent or a denominator."
+ },
+ {
+  "id": "LA14",
+  "cat": "LA",
+  "b": 0.9,
+  "a": 1.2,
+  "calc": false,
+  "name": "Solutions of a two-variable inequality",
+  "tip": "Substitute the point and check whether the inequality is true."
+ },
+ {
+  "id": "LA15",
+  "cat": "LA",
+  "b": 1.4,
+  "a": 1.2,
+  "calc": false,
+  "name": "Comparing linear functions",
+  "tip": "Find each function’s slope and y-intercept, from a table, graph, or equation, then compare."
+ },
+ {
+  "id": "LE7",
+  "cat": "LE",
+  "b": 1.6,
+  "a": 1.3,
+  "calc": false,
+  "name": "Compound inequalities",
+  "tip": "Do the same operation to all three parts at once."
+ },
+ {
+  "id": "LE8",
+  "cat": "LE",
+  "b": 0.4,
+  "a": 1.2,
+  "calc": false,
+  "name": "Inequalities with variables on both sides",
+  "tip": "Collect x-terms on one side. Flip the sign if you divide by a negative."
+ },
+ {
+  "id": "LE9",
+  "cat": "LE",
+  "b": -0.2,
+  "a": 1.1,
+  "calc": false,
+  "name": "Checking a solution to a system",
+  "tip": "A solution must make every equation in the system true."
+ },
+ {
+  "id": "PS7",
+  "cat": "PS",
+  "b": 0.3,
+  "a": 1.2,
+  "calc": false,
+  "name": "Probability of A or B",
+  "tip": "P(A or B) counts each outcome once: subtract the overlap if you add."
+ },
+ {
+  "id": "PS8",
+  "cat": "PS",
+  "b": -0.6,
+  "a": 1.1,
+  "calc": false,
+  "name": "Experimental probability and predictions",
+  "tip": "Use the observed fraction, then multiply by the number of new trials."
+ },
+ {
+  "id": "PS9",
+  "cat": "PS",
+  "b": 0,
+  "a": 1,
+  "calc": false,
+  "name": "Independent vs. dependent events",
+  "tip": "Dependent: the first outcome changes the chances for the second (usually “without replacement”)."
+ },
+ {
+  "id": "PS10",
+  "cat": "PS",
+  "b": 1.2,
+  "a": 1.2,
+  "calc": false,
+  "name": "Set-builder notation",
+  "tip": "Read the rule and the boundaries: < excludes the endpoint, ≤ includes it."
+ },
+ {
+  "id": "RN6",
+  "cat": "RN",
+  "b": -0.8,
+  "a": 1.2,
+  "calc": false,
+  "name": "Operations with decimals",
+  "tip": "Multiply before adding, and track the sign."
+ },
+ {
+  "id": "RN7",
+  "cat": "RN",
+  "b": 0.6,
+  "a": 1.2,
+  "calc": false,
+  "name": "Complex fractions",
+  "tip": "A fraction over a fraction is division: multiply by the reciprocal of the bottom."
+ },
+ {
+  "id": "RN8",
+  "cat": "RN",
+  "b": 1.9,
+  "a": 1.3,
+  "calc": false,
+  "name": "Absolute value inequalities",
+  "tip": "|x − a| < k means x is within k units of a."
+ },
+ {
+  "id": "RP8",
+  "cat": "RP",
+  "b": 0,
+  "a": 1.2,
+  "calc": false,
+  "name": "Scale drawings",
+  "tip": "Multiply the drawing length by the number of real units per drawing unit."
+ },
+ {
+  "id": "RP9",
+  "cat": "RP",
+  "b": 0.7,
+  "a": 1.2,
+  "calc": false,
+  "name": "Estimating a population with a proportion",
+  "tip": "Tagged in sample ÷ sample size = tagged total ÷ population."
+ },
+ {
+  "id": "EX7",
+  "cat": "EX",
+  "b": -0.6,
+  "a": 1.1,
+  "calc": false,
+  "name": "Cube roots",
+  "tip": "The cube root of n is the number that, used three times as a factor, gives n."
+ },
+ {
+  "id": "EX8",
+  "cat": "EX",
+  "b": -1,
+  "a": 1,
+  "calc": false,
+  "name": "Estimating square roots",
+  "tip": "Find the perfect squares just below and just above the number."
+ },
+ {
+  "id": "EX9",
+  "cat": "EX",
+  "b": 0.3,
+  "a": 1.2,
+  "calc": false,
+  "name": "Converting to scientific notation",
+  "tip": "One nonzero digit before the decimal point; the exponent counts how far the point moved."
+ },
+ {
+  "id": "EX10",
+  "cat": "EX",
+  "b": 1.5,
+  "a": 1.3,
+  "calc": false,
+  "name": "Rational exponents and radicals",
+  "tip": "x<sup>p/q</sup> is the q-th root of x<sup>p</sup>: the denominator is the root."
+ },
+ {
+  "id": "AE6",
+  "cat": "AE",
+  "b": -0.3,
+  "a": 1.2,
+  "calc": false,
+  "name": "Evaluating with several variables",
+  "tip": "Substitute every value in parentheses, then follow the order of operations."
+ },
+ {
+  "id": "AE7",
+  "cat": "AE",
+  "b": 1.6,
+  "a": 1.3,
+  "calc": false,
+  "name": "Absolute value expressions",
+  "tip": "Evaluate inside the bars first, then take the absolute value."
+ },
+ {
+  "id": "G1g",
+  "cat": "G1",
+  "b": 0,
+  "a": 1.2,
+  "calc": false,
+  "name": "Rectangles on the coordinate plane",
+  "tip": "Side lengths are differences of coordinates."
+ },
+ {
+  "id": "G1h",
+  "cat": "G1",
+  "b": 1.6,
+  "a": 1.3,
+  "calc": false,
+  "name": "Volume of a composite solid",
+  "tip": "Whole volume minus the part that is removed."
+ },
+ {
+  "id": "G2g",
+  "cat": "G2",
+  "b": 0.5,
+  "a": 1.2,
+  "calc": false,
+  "name": "Dilations",
+  "tip": "Centered at the origin, multiply both coordinates by the scale factor."
+ },
+ {
+  "id": "G2h",
+  "cat": "G2",
+  "b": 1.4,
+  "a": 1.3,
+  "calc": false,
+  "name": "Area with polynomials",
+  "tip": "Multiply every term of one factor by every term of the other, then combine like terms."
+ },
+ {
+  "id": "G2i",
+  "cat": "G2",
+  "b": 0.7,
+  "a": 1.2,
+  "calc": false,
+  "name": "Pythagorean word problems",
+  "tip": "Find the right triangle and its hypotenuse, then use a² + b² = c²."
+ }
+]

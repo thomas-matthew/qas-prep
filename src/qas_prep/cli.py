@@ -1,0 +1,140 @@
+"""Command line: `uv run qas-prep <command>`."""
+import argparse
+import asyncio
+import os
+import plistlib
+import socket
+import subprocess
+import sys
+from pathlib import Path
+
+from . import bank, db, tutor
+from .config import ROOT, load
+
+LABEL = "dev.qas-prep.serve"
+PLIST = Path.home() / "Library" / "LaunchAgents" / f"{LABEL}.plist"
+
+
+def addresses(port: int) -> list[str]:
+    host = subprocess.run(["scutil", "--get", "LocalHostName"], capture_output=True, text=True).stdout.strip()
+    out = [f"http://{host}.local:{port}"] if host else []
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("192.168.0.1", 9))  # no packet is sent; this only picks the outgoing interface
+        out.append(f"http://{s.getsockname()[0]}:{port}")
+        s.close()
+    except OSError:
+        pass
+    return out + [f"http://localhost:{port}"]
+
+
+def cmd_serve(_args) -> None:
+    import uvicorn
+    from .app import create_app
+    s = load()
+    print("QAS Prep is running at:\n  " + "\n  ".join(addresses(s.port)))
+    uvicorn.run(create_app(s), host=s.host, port=s.port, log_level="warning")
+
+
+def cmd_install_service(_args) -> None:
+    """Runs the server at login and restarts it if it stops (macOS LaunchAgent)."""
+    s = load()
+    logs = s.data_dir / "logs"
+    logs.mkdir(parents=True, exist_ok=True)
+    uv = subprocess.run(["which", "uv"], capture_output=True, text=True).stdout.strip() or "uv"
+    plist = {
+        "Label": LABEL, "ProgramArguments": [uv, "run", "--project", str(ROOT), "qas-prep", "serve"],
+        "WorkingDirectory": str(ROOT), "RunAtLoad": True, "KeepAlive": True,
+        "EnvironmentVariables": {"PATH": f"{Path(uv).parent}:/usr/bin:/bin:/usr/sbin:/sbin", "HOME": str(Path.home())},
+        "StandardOutPath": str(logs / "serve.log"), "StandardErrorPath": str(logs / "serve.log"),
+    }
+    PLIST.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["launchctl", "bootout", f"gui/{os.getuid()}/{LABEL}"], capture_output=True)
+    PLIST.write_bytes(plistlib.dumps(plist))
+    subprocess.run(["launchctl", "bootstrap", f"gui/{os.getuid()}", str(PLIST)], check=True)
+    print(f"Installed {PLIST.name}. QAS Prep starts at login.\nOpen it at:\n  " + "\n  ".join(addresses(s.port)))
+
+
+def cmd_uninstall_service(_args) -> None:
+    subprocess.run(["launchctl", "bootout", f"gui/{os.getuid()}/{LABEL}"], capture_output=True)
+    PLIST.unlink(missing_ok=True)
+    print("Removed the background service. Your saved history is untouched.")
+
+
+def cmd_restart(_args) -> None:
+    r = subprocess.run(["launchctl", "kickstart", "-k", f"gui/{os.getuid()}/{LABEL}"])
+    print("Restarted." if r.returncode == 0 else "The service is not installed; run install-service first.")
+
+
+def cmd_backup(_args) -> None:
+    s = load()
+    print(f"Saved {db.backup(db.connect(s.db_path), s.backup_dir, s.keep_backups)}")
+
+
+def cmd_restore(args) -> None:
+    s = load()
+    if args.file == "list":
+        for f in sorted(s.backup_dir.glob("qas-*.db")):
+            print(f.name)
+        return
+    src = db.latest_backup(s.backup_dir) if args.file == "latest" else Path(args.file)
+    if not src or not src.exists():
+        sys.exit("No such backup. `qas-prep restore list` shows the ones there are.")
+    safety = db.restore(db.connect(s.db_path), src, s.backup_dir, s.keep_backups)
+    print(f"Restored {src.name}. The data from before the restore was saved as {safety.name}.")
+
+
+def cmd_flags(_args) -> None:
+    con = db.connect(load().db_path)
+    rows = db.flags(con, open_only=True)
+    if not rows:
+        print("No flagged questions.")
+    for f in rows:
+        q = bank.get(f["qid"])
+        print(f"{f['qid']:<10} {q['name'] if q else '?':<40} {f['who'] or '':<12} {f['note']}")
+
+
+def cmd_recheck(args) -> None:
+    n = db.recheck_flag(db.connect(load().db_path), args.qid)
+    print(f"Cleared {n} flag(s) on {args.qid}; it can appear in tests again." if n else "No open flags on that question.")
+
+
+def cmd_claude_login(_args) -> None:
+    print("A Claude session opens. Type /login, choose your Claude account, finish in the browser, then /exit.")
+    subprocess.run([str(tutor.CLI)])
+
+
+def cmd_doctor(_args) -> None:
+    s = load()
+    print(f"Question bank: {bank.total()} questions in {len(bank.types())} types")
+    con = db.connect(s.db_path)
+    print(f"Database: {s.db_path} ({len(db.profiles(con))} profiles)")
+    last = db.latest_backup(s.backup_dir)
+    print(f"Latest backup: {last.name if last else 'none yet'}")
+    st = asyncio.run(tutor.status(s.tutor_dir, s.tutor_model, 0))
+    print("Tutor: " + ("ok" if st["ok"] else st["message"]))
+
+
+def main() -> None:
+    p = argparse.ArgumentParser(prog="qas-prep", description="ACCUPLACER QAS practice tests with a Claude tutor.")
+    sub = p.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("serve", help="run the web app").set_defaults(f=cmd_serve)
+    sub.add_parser("install-service", help="run the app in the background, starting at login").set_defaults(f=cmd_install_service)
+    sub.add_parser("uninstall-service", help="stop running it in the background").set_defaults(f=cmd_uninstall_service)
+    sub.add_parser("restart", help="restart the background service after an update").set_defaults(f=cmd_restart)
+    sub.add_parser("backup", help="back up the history now").set_defaults(f=cmd_backup)
+    r = sub.add_parser("restore", help="restore history from a backup")
+    r.add_argument("file", help="'latest', 'list', or a backup file path")
+    r.set_defaults(f=cmd_restore)
+    sub.add_parser("flags", help="list questions flagged as wrong or confusing").set_defaults(f=cmd_flags)
+    rc = sub.add_parser("recheck", help="clear the flags on a question after checking it")
+    rc.add_argument("qid", help="question id, such as RN1#3")
+    rc.set_defaults(f=cmd_recheck)
+    sub.add_parser("claude-login", help="log the tutor in to your Claude account").set_defaults(f=cmd_claude_login)
+    sub.add_parser("doctor", help="check the bank, database, backups and tutor").set_defaults(f=cmd_doctor)
+    args = p.parse_args()
+    args.f(args)
+
+
+if __name__ == "__main__":
+    main()
