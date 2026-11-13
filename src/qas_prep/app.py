@@ -217,7 +217,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 if body.index is None or not 0 <= body.index < len(a["items"]):
                     raise HTTPException(400, "No such question in that test.")
                 r = a["items"][body.index]
-                ctx = tutor.question_context(f"{r['id']}#{r['k']}", r.get("ch"), f"{label}, question {body.index + 1}")
+                ctx = tutor.question_context(f"{r['id']}#{r['k']}", r.get("ch"), f"{label}, question {body.index + 1}",
+                                             r.get("ms"))
             elif body.qid:
                 if not bank.get(body.qid):
                     raise HTTPException(404, "Unknown question.")

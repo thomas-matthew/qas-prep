@@ -170,6 +170,27 @@ def test_figure_question_sends_image():
 
 
 # ---------- engine simulation (headless, the browser's own code) ----------
+def test_time_is_saved_and_given_to_the_tutor(client):
+    pid = profile(client)
+    a = attempt(wrong=(3,))
+    for i, r in enumerate(a["items"]):
+        r["ms"] = 30_000 + i * 1000
+    a["ms"] = sum(r["ms"] for r in a["items"])
+    aid = client.post(f"/api/profiles/{pid}/attempts", json=a).json()["id"]
+    saved = client.get(f"/api/profiles/{pid}/attempts").json()[0]
+    assert saved["ms"] == a["ms"] and saved["items"][3]["ms"] == 33_000
+    c = client.post(f"/api/profiles/{pid}/conversations", json={"kind": "question", "ref": f"a{aid}:3", "attempt": aid, "index": 3}).json()
+    assert "Time the learner spent on it: 33 s" in db.conversation(client.app.state.con, c["id"])["context"]["text"]
+    m = client.post(f"/api/profiles/{pid}/conversations", json={"kind": "mistakes", "ref": f"a{aid}", "attempt": aid}).json()
+    text = db.conversation(client.app.state.con, m["id"])["context"]["text"]
+    assert "They took 13 min 10 s in all, 40 s per question" in text and "Time the learner spent on it: 33 s" in text
+    # tests saved before timing existed still work, with no time lines
+    old = client.post(f"/api/profiles/{pid}/attempts", json=attempt(t=1_700_000_100_000)).json()["id"]
+    o = client.post(f"/api/profiles/{pid}/conversations", json={"kind": "mistakes", "ref": f"a{old}", "attempt": old}).json()
+    assert "Time" not in db.conversation(client.app.state.con, o["id"])["context"]["text"]
+    assert tutor.fmt_time(65_400) == "1 min 05 s" and tutor.fmt_time(9_600) == "10 s"
+
+
 @pytest.mark.skipif(not shutil.which("node"), reason="node is not installed")
 def test_engine_simulation():
     r = subprocess.run(["node", str(ROOT / "scripts" / "simulate.cjs"), "800"], capture_output=True, text=True, timeout=120)

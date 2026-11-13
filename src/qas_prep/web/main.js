@@ -27,6 +27,9 @@
   const itemScore = it => E.toScore(it.b);
   const inTest = () => !!(cur && S && S.n < E.LENGTH);
   const testNo = id => store.get().findIndex(h => h.id === id) + 1;
+  /* 83000 -> "1:23". Old tests have no times, so callers check for a number first. */
+  const fmtTime = ms => { const s = Math.round(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+  const timed = x => typeof x === 'number' && x > 0;
   const dateStr = t => new Date(t).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 
   /* ---------- profiles ---------- */
@@ -79,7 +82,7 @@
         <h1>Adaptive QAS practice test</h1>
         <p class="lede">Twenty multiple-choice questions on Quantitative Reasoning, Algebra, and Statistics. Each answer updates an estimate of your ability, and the next question is chosen to match it, while keeping the official mix of topics.</p>
         <ul class="rules">
-          <li>Untimed. Use scratch paper.</li>
+          <li>Untimed, but the time you spend on each question is recorded so you can see where it goes. Use scratch paper.</li>
           <li>You must answer each question to continue, and you can't go back.</li>
           <li>A calculator is available only on questions marked with the calculator button.</li>
           <li>Questions come from a bank of ${window.QAS_ITEMS.BANK.reduce((a, it) => a + it.instances, 0).toLocaleString()} checked questions; each test favors ones you haven't seen yet.</li>
@@ -113,16 +116,25 @@
   }
 
   /* ---------- test ---------- */
+  /* Time on each question counts only while the page is visible, so stepping away doesn't inflate it. */
+  const clock = {
+    acc: 0, since: 0,
+    run() { if (!this.since && !document.hidden) this.since = performance.now(); },
+    pause() { if (this.since) { this.acc += performance.now() - this.since; this.since = 0; } },
+    take() { this.pause(); const ms = Math.round(this.acc); this.acc = 0; return ms; },
+  };
+  document.addEventListener('visibilitychange', () => { if (!S) return; if (document.hidden) clock.pause(); else clock.run(); });
   const guard = e => { e.preventDefault(); e.returnValue = ''; };
   function startTest() {
     if (location.hash) history.replaceState(null, '', location.pathname + location.search);
     tutor.lock(true); window.addEventListener('beforeunload', guard); // TST-11, AIT-08
-    setNav('test'); S = E.newSession(BANK); S.taken = new Set(); nextQuestion();
+    setNav('test'); S = E.newSession(BANK); S.taken = new Set(); S.t0 = Date.now(); nextQuestion();
   }
   function nextQuestion() {
     const it = E.selectNext(S);
     cur = { it, g: it.gen(S.taken) }; chosen = -1; S.taken.add(it.id + '#' + cur.g.k);
     renderQuestion();
+    clock.take(); clock.run();
   }
   function renderQuestion() {
     const { it, g } = cur, k = S.n + 1;
@@ -157,7 +169,7 @@
   }
   function submit() {
     if (chosen < 0) return;
-    E.record(S, cur.it, chosen === cur.g.ans, { g: cur.g, chosen });
+    E.record(S, cur.it, chosen === cur.g.ans, { g: cur.g, chosen, ms: clock.take() });
     if (S.n >= E.LENGTH) finish(); else nextQuestion();
     window.scrollTo({ top: 0 });
   }
@@ -226,7 +238,8 @@
   /* ---------- results ---------- */
   function finish() {
     const score = E.toScore(S.theta);
-    const rec = { t: Date.now(), score, se: +S.se.toFixed(3), theta: +S.theta.toFixed(3), items: S.resp.map(r => ({ id: r.it.id, k: r.g.k, c: r.it.cat, b: r.it.b, a: r.it.a, u: r.u ? 1 : 0, ch: r.chosen })) };
+    const rec = { t: Date.now(), t0: S.t0, score, se: +S.se.toFixed(3), theta: +S.theta.toFixed(3), ms: S.resp.reduce((a, r) => a + r.ms, 0),
+      items: S.resp.map(r => ({ id: r.it.id, k: r.g.k, c: r.it.cat, b: r.it.b, a: r.it.a, u: r.u ? 1 : 0, ch: r.chosen, ms: r.ms })) };
     cur = null; S = null;
     tutor.lock(false); window.removeEventListener('beforeunload', guard);
     if (location.hash) history.replaceState(null, '', location.pathname + location.search);
@@ -240,7 +253,7 @@
     rec.items.forEach(r => {
       const it = window.QAS_ITEMS.byId[r.id] || { id: r.id, cat: r.c, b: r.b, a: r.a || 1.2, name: r.id, tip: '' };
       const g = window.QAS_ITEMS.get(r.id, r.k);
-      resp.push({ it: { ...it, b: r.b, a: r.a || it.a }, g, u: !!r.u, chosen: r.ch, qid: r.id + '#' + r.k });
+      resp.push({ it: { ...it, b: r.b, a: r.a || it.a }, g, u: !!r.u, chosen: r.ch, ms: r.ms, qid: r.id + '#' + r.k });
       const e = E.eap(resp.map(x => ({ it: x.it, u: x.u }))); resp[resp.length - 1].thAfter = e.theta; resp[resp.length - 1].seAfter = e.se;
     });
     return resp;
@@ -252,7 +265,11 @@
     const n = rec.id ? testNo(rec.id) : store.get().length + 1;
     hdrStatus.textContent = live ? 'Results' : `Test #${n}`; setNav('results');
     const correct = resp.filter(r => r.u).length, missed = resp.length - correct;
-    const byCat = {}; resp.forEach(r => { const c = byCat[r.it.cat] || (byCat[r.it.cat] = { n: 0, k: 0 }); c.n++; if (r.u) c.k++; });
+    const byCat = {}; resp.forEach(r => { const c = byCat[r.it.cat] || (byCat[r.it.cat] = { n: 0, k: 0, ms: 0 }); c.n++; if (r.u) c.k++; c.ms += r.ms || 0; });
+    // Questions that took more than twice the test's median time are marked as slow.
+    const hasTime = timed(rec.ms) && resp.every(r => timed(r.ms));
+    const median = hasTime ? resp.map(r => r.ms).sort((a, b) => a - b)[Math.floor(resp.length / 2)] : 0;
+    resp.forEach(r => (r.slow = hasTime && r.ms > 2 * median && r.ms >= 60000));
     // RES-03: 3–5 skills to work on: missed question types first, then the next band's skills
     const work = [...new Set(resp.filter(r => !r.u).sort((a, b) => a.it.b - b.it.b).map(r => r.it.name))].slice(0, 3);
     const next = band < 4 ? BAND_SKILLS[band + 1] : BAND_SKILLS[band];
@@ -265,6 +282,7 @@
         <div class="big num">${score}</div>
         <div>${bandChip(score)}</div>
         <div class="muted">Likely range ${lo}–${hi} · ${correct} of ${E.LENGTH} correct</div>
+        ${hasTime ? `<div class="muted">Time <span class="num">${fmtTime(rec.ms)}</span> · <span class="num">${fmtTime(rec.ms / resp.length)}</span> per question on average</div>` : ''}
         <div class="save-note" id="save-note">${live ? 'Saving…' : 'Saved.'}</div>
         <p class="fine">A practice estimate, not an official ACCUPLACER score.</p>
       </div>
@@ -284,13 +302,13 @@
     </section>
     <section>
       <h2>By topic</h2>
-      <table class="bp topics"><thead><tr><th>Topic</th><th class="r">Correct</th><th class="bars-h"></th></tr></thead><tbody>
-      ${Object.keys(E.BLUEPRINT).map(k => { const c = byCat[k] || { n: 0, k: 0 }; return `<tr><td>${E.CATS[k]}</td><td class="r num">${c.k} / ${c.n}</td><td><span class="meter"><span style="width:${c.n ? (100 * c.k) / c.n : 0}%"></span></span></td></tr>`; }).join('')}
+      <table class="bp topics"><thead><tr><th>Topic</th><th class="r">Correct</th>${hasTime ? '<th class="r">Time per question</th>' : ''}<th class="bars-h"></th></tr></thead><tbody>
+      ${Object.keys(E.BLUEPRINT).map(k => { const c = byCat[k] || { n: 0, k: 0, ms: 0 }; return `<tr><td>${E.CATS[k]}</td><td class="r num">${c.k} / ${c.n}</td>${hasTime ? `<td class="r num">${c.n ? fmtTime(c.ms / c.n) : '—'}</td>` : ''}<td><span class="meter"><span style="width:${c.n ? (100 * c.k) / c.n : 0}%"></span></span></td></tr>`; }).join('')}
       </tbody></table>
     </section>
     <section>
       <h2>Review your answers</h2>
-      <p class="muted">Missed questions are opened for you. Ask the tutor about any question, or flag one that looks wrong.</p>
+      <p class="muted">Missed questions are opened for you. Ask the tutor about any question, or flag one that looks wrong.${hasTime ? ' The time on each is how long it was on screen; times marked ▲ took more than twice your typical time.' : ''}</p>
       <div class="review">${resp.map((r, i) => reviewItem(r, i)).join('')}</div>
     </section>
     <div class="end-row"><button class="btn primary" id="again">Take another test</button><a class="btn ghost" href="#progress">See your progress</a><button class="btn ghost" id="home">Back to start</button></div>`;
@@ -323,13 +341,14 @@
     } else enable(rec);
   }
 
+  const rvTime = r => `<span class="rv-time num ${r.slow ? 'slow' : ''}" ${timed(r.ms) ? `title="Time on this question${r.slow ? ', more than twice your typical time' : ''}"` : ''}>${timed(r.ms) ? (r.slow ? '▲ ' : '') + fmtTime(r.ms) : ''}</span>`;
   function splitSteps(t) { return t.split(/(?<=[.!?”])\s+(?=[A-Z<(“−\d])/).filter(Boolean); }
   function reviewItem(r, i) {
     const g = r.g, s = itemScore(r.it), flagged = window.QAS_ITEMS.flagged.has(r.qid);
-    if (!g) return `<details class="rv ${r.u ? 'good' : 'bad'}"><summary><span class="rv-n num">${i + 1}</span><span class="rv-t">${r.it.name}</span><span class="rv-m">${r.u ? '✓ Correct' : '✗ Missed'}</span></summary><div class="rv-body"><p class="muted">This question is no longer in the bank.</p></div></details>`;
+    if (!g) return `<details class="rv ${r.u ? 'good' : 'bad'}"><summary><span class="rv-n num">${i + 1}</span><span class="rv-t">${r.it.name}</span><span class="rv-d"></span>${rvTime(r)}<span class="rv-m">${r.u ? '✓ Correct' : '✗ Missed'}</span></summary><div class="rv-body"><p class="muted">This question is no longer in the bank.</p></div></details>`;
     const ch = r.chosen;
     return `<details class="rv ${r.u ? 'good' : 'bad'}" ${r.u ? '' : 'open'}>
-      <summary><span class="rv-n num">${i + 1}</span><span class="rv-t">${r.it.name}<span class="rv-c">${E.CATS[r.it.cat]}</span></span><span class="rv-d">level ${BAND_NAMES[E.bandOf(s)]}</span><span class="rv-m">${r.u ? '✓ Correct' : '✗ Missed'}</span></summary>
+      <summary><span class="rv-n num">${i + 1}</span><span class="rv-t">${r.it.name}<span class="rv-c">${E.CATS[r.it.cat]}</span></span><span class="rv-d">level ${BAND_NAMES[E.bandOf(s)]}</span>${rvTime(r)}<span class="rv-m">${r.u ? '✓ Correct' : '✗ Missed'}</span></summary>
       <div class="rv-body"><div class="qtext">${g.q}</div>
       <ol class="rv-ch">${g.choices.map((c, j) => `<li class="${j === g.ans ? 'ans' : ''} ${j === ch ? 'mine' : ''}"><span class="let">${LETTERS[j]}</span><span>${c}</span>${j === g.ans ? '<span class="tag ok">✓ Correct answer</span>' : ''}${j === ch && j !== g.ans ? '<span class="tag no">✗ Your answer</span>' : ''}</li>`).join('')}</ol>
       <div class="sol"><div class="key"><span class="key-l">Key idea</span><span>${r.it.tip}</span></div>
@@ -381,7 +400,7 @@
     nav.querySelectorAll('a').forEach(a => a.classList.toggle('on', (a.getAttribute('href') === '#progress') === (v === 'progress')));
     renderWho(v);
   }
-  const ctx = () => ({ app, E, BANK, store, BAND_NAMES, BAND_SKILLS, bandChip, setNav, hdrStatus, tutor });
+  const ctx = () => ({ app, E, BANK, store, BAND_NAMES, BAND_SKILLS, bandChip, setNav, hdrStatus, tutor, fmtTime });
   function route() {
     if (inTest()) { if (location.hash) history.replaceState(null, '', location.pathname + location.search); return; }
     cur = null;

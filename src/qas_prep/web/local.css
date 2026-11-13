@@ -64,3 +64,9 @@ p.nv{display:table}
 .tu-foot{display:flex; justify-content:flex-end}
 .tu-body ul{margin:0 0 4px; padding-left:20px}
 @media (max-width: 1000px){ body.with-tutor main,body.with-tutor .foot{margin-right:auto} }
+
+/* Time per question in the answer review */
+.rv summary{grid-template-columns:32px minmax(0,1fr) auto 4.5em auto}
+.rv-time{font-family:var(--font-mono); font-size:12px; color:var(--ink-2); text-align:right}
+.rv-time.slow{color:var(--ink); font-weight:700}
+@media (max-width: 720px){ .rv summary{grid-template-columns:28px minmax(0,1fr) auto auto} }

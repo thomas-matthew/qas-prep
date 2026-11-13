@@ -59,7 +59,13 @@ class TutorUnavailable(Exception):
 
 
 # ---------- building the context ----------
-def _question_block(q: dict, chosen: int | None, number: int | None = None) -> str:
+def fmt_time(ms) -> str:
+    """Milliseconds as "1 min 05 s" or "42 s"."""
+    sec = round(ms / 1000)
+    return f"{sec // 60} min {sec % 60:02d} s" if sec >= 60 else f"{sec} s"
+
+
+def _question_block(q: dict, chosen: int | None, number: int | None = None, ms: int | None = None) -> str:
     L = bank.LETTERS
     head = f"Question {number}" if number else "Question"
     lines = [f"{head} — type: {q['name']} (topic: {q['topic']}; calculator {'allowed' if q['calc'] else 'not allowed'})",
@@ -69,18 +75,20 @@ def _question_block(q: dict, chosen: int | None, number: int | None = None) -> s
     if chosen is not None and 0 <= chosen < 4:
         verdict = "correct" if chosen == q["ans"] else "wrong"
         lines.append(f"Learner's answer: {L[chosen]}) {bank.plain(q['choices'][chosen])} ({verdict})")
+    if isinstance(ms, (int, float)) and ms > 0:
+        lines.append(f"Time the learner spent on it: {fmt_time(ms)}")
     lines += [f"Key idea: {q['tip']}", f"Worked solution: {bank.plain(q['exp'])}"]
     return "\n".join(lines)
 
 
-def question_context(qid: str, chosen: int | None, test_label: str | None = None) -> dict:
+def question_context(qid: str, chosen: int | None, test_label: str | None = None, ms: int | None = None) -> dict:
     q = bank.get(qid)
     if not q:
         raise KeyError(qid)
     intro = f"The learner is reviewing a question from {test_label}." if test_label else \
         "The learner is reviewing a question from a topic practice drill."
     images = bank.figure_b64(q["q"])
-    return {"text": intro + "\n\n" + _question_block(q, chosen), "images": images,
+    return {"text": intro + "\n\n" + _question_block(q, chosen, ms=ms), "images": images,
             "title": q["name"], "summary": _short(q, chosen)}
 
 
@@ -101,15 +109,19 @@ def mistakes_context(attempt: dict, test_label: str) -> dict:
         if not q:
             continue
         figs = bank.figure_b64(q["q"])
-        block = _question_block(q, r.get("ch"), i + 1)
+        block = _question_block(q, r.get("ch"), i + 1, r.get("ms"))
         if figs:
             block = block.replace("[Figure 1: see the attached image]",
                                   f"[Figure: attached image {len(images) + 1}]")
         images += figs
         missed.append(block)
     correct = sum(1 for r in attempt.get("items", []) if r.get("u"))
+    timing = ""
+    if isinstance(attempt.get("ms"), (int, float)) and attempt["ms"] > 0:
+        n = len(attempt.get("items", [])) or 1
+        timing = f" They took {fmt_time(attempt['ms'])} in all, {fmt_time(attempt['ms'] / n)} per question on average."
     text = (f"The learner just finished {test_label}: estimated score {attempt['score']} on the 200–300 scale, "
-            f"{correct} of {len(attempt.get('items', []))} correct. These are the {len(missed)} questions they missed, "
+            f"{correct} of {len(attempt.get('items', []))} correct.{timing} These are the {len(missed)} questions they missed, "
             "in test order. Help them review the mistakes.\n\n" + "\n\n---\n\n".join(missed))
     return {"text": text, "images": images, "title": f"Mistakes in {test_label}",
             "summary": f"{len(missed)} missed question{'s' if len(missed) != 1 else ''} from {test_label}"}

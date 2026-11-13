@@ -31,7 +31,8 @@
     const recent = hist.slice(-3), thNow = recent.length ? recent.reduce((a, h) => a + thOf(h), 0) / recent.length : 0;
     const byId = Object.fromEntries(BANK.map(it => [it.id, it]));
     const cats = Object.keys(E.BLUEPRINT);
-    const topic = {}; cats.forEach(k => (topic[k] = { n: 0, k: 0, exp: 0, per: [], types: {} }));
+    const topic = {}; cats.forEach(k => (topic[k] = { n: 0, k: 0, exp: 0, per: [], types: {}, ms: 0, mn: 0 }));
+    const time = { ms: 0, n: 0 }; // only questions from tests that recorded time
     const ids = {}, lev = [0, 1, 2, 3, 4].map(() => ({ n: 0, k: 0 }));
     win.forEach((h, wi) => {
       const th = thOf(h), per = {}; cats.forEach(k => (per[k] = { n: 0, k: 0, exp: 0 }));
@@ -39,6 +40,7 @@
         if (!topic[r.c]) continue;
         const p = E.P(th, { a: r.a || 1.2, b: r.b });
         const T = topic[r.c]; T.n++; T.k += r.u; T.exp += p;
+        if (typeof r.ms === 'number' && r.ms > 0) { T.ms += r.ms; T.mn++; time.ms += r.ms; time.n++; }
         per[r.c].n++; per[r.c].k += r.u; per[r.c].exp += p;
         const t = ids[r.id] || (ids[r.id] = { n: 0, miss: 0, sur: 0, last: null }); t.n++; t.last = r.u; if (!r.u) { t.miss++; t.sur += p; }
         const ty = T.types[r.id] || (T.types[r.id] = { n: 0, k: 0 }); ty.n++; ty.k += r.u;
@@ -46,7 +48,7 @@
       }
       cats.forEach(k => topic[k].per.push(per[k]));
     });
-    return { hist, detailed, win, thOf, thNow, byId, cats, topic, ids, lev };
+    return { hist, detailed, win, thOf, thNow, byId, cats, topic, ids, lev, time };
   }
   const resid = T => (T.n ? (T.k - T.exp) / T.n : 0);
   function statusOf(T) {
@@ -81,8 +83,13 @@
       if (best && best[1] > 0.1) out.push({ kind: 'good', title: `Most improved: ${E.CATS[best[0]]}`, body: `From ${pct(best[2].k, best[2].n)} correct in your earlier tests to ${pct(best[3].k, best[3].n)} in your later ones.`, topic: best[0] });
     }
     const sur = Object.entries(A.ids).filter(([, t]) => t.miss && t.sur / t.miss >= 0.6).sort((x, y) => y[1].sur - x[1].sur)[0];
+    // Where the time goes: the topic with the longest time per question, once there is enough timed data
+    if (A.time.n >= 20) {
+      const avg = A.time.ms / A.time.n, slow = A.cats.filter(k => A.topic[k].mn >= 4).map(k => [k, A.topic[k].ms / A.topic[k].mn]).sort((a, b) => b[1] - a[1])[0];
+      if (slow && slow[1] > 1.25 * avg) out.push({ kind: 'info', title: `Slowest topic: ${E.CATS[slow[0]]}`, body: `${ctx.fmtTime(slow[1])} per question, against ${ctx.fmtTime(avg)} across all topics.`, topic: slow[0] });
+    }
     if (sur) { const it = A.byId[sur[0]]; if (it) out.push({ kind: 'bad', title: `Careless-miss check: ${it.name}`, body: `You missed ${sur[1].miss} of ${sur[1].n} even though students at your level usually get these right. ${it.tip}`, act: ['practice', it.cat, 'Practice'], topic: it.cat }); }
-    return out.slice(0, 5);
+    return out.slice(0, 6);
   }
 
   /* ---------- charts ---------- */
@@ -176,16 +183,16 @@
     const h = A.hist[view.test]; if (!h) return '';
     if (!Array.isArray(h.items)) return `<p class="muted">Test #${view.test + 1} scored ${h.score}. It was taken before question details were saved.</p>`;
     const byCat = {}; h.items.forEach(r => { const c = byCat[r.c] || (byCat[r.c] = { n: 0, k: 0 }); c.n++; c.k += r.u; });
-    return `<div class="td-head"><h3>Test #${view.test + 1} · ${dateStr(h.t)}${h.sim ? ' · <span class="pill na">Simulated</span>' : ''}</h3><span class="num">Score ${h.score} ${CTX.bandChip(h.score)}</span><a class="btn small" href="#test/${h.id}">Open full review</a></div>
+    return `<div class="td-head"><h3>Test #${view.test + 1} · ${dateStr(h.t)}${h.ms > 0 ? ` · <span class="num">${CTX.fmtTime(h.ms)}</span>` : ''}${h.sim ? ' · <span class="pill na">Simulated</span>' : ''}</h3><span class="num">Score ${h.score} ${CTX.bandChip(h.score)}</span><a class="btn small" href="#test/${h.id}">Open full review</a></div>
       <div class="td-grid"><table class="bp mini"><tbody>${Object.keys(E.BLUEPRINT).filter(k => byCat[k]).map(k => `<tr><td>${E.SHORT[k]}</td><td class="r num">${byCat[k].k} / ${byCat[k].n}</td></tr>`).join('')}</tbody></table>
-      <ol class="q-strip">${h.items.map((r, i) => { const it = A.byId[r.id]; return `<li class="${r.u ? 'ok' : 'no'}" data-tip="<b>Q${i + 1}: ${it ? it.name : r.id}</b><br>${E.CATS[r.c]}<br>Level ${CTX.BAND_NAMES[E.bandOf(E.toScore(r.b))]}<br>${r.u ? 'Correct' : 'Missed'}"><span>${i + 1}</span></li>`; }).join('')}</ol></div>`;
+      <ol class="q-strip">${h.items.map((r, i) => { const it = A.byId[r.id]; return `<li class="${r.u ? 'ok' : 'no'}" data-tip="<b>Q${i + 1}: ${it ? it.name : r.id}</b><br>${E.CATS[r.c]}<br>Level ${CTX.BAND_NAMES[E.bandOf(E.toScore(r.b))]}<br>${r.u ? 'Correct' : 'Missed'}${r.ms > 0 ? ' · ' + CTX.fmtTime(r.ms) : ''}"><span>${i + 1}</span></li>`; }).join('')}</ol></div>`;
   }
   function topicDetail(A, E) {
     const k = view.topic, T = A.topic[k]; if (!T) return '';
     const [cls, lab] = statusOf(T);
     const types = Object.entries(T.types).map(([id, t]) => [A.byId[id], t]).filter(([it]) => it).sort((a, b) => (a[1].k / a[1].n) - (b[1].k / b[1].n));
     return `<div class="tp-head"><h3>${E.CATS[k]}</h3><span class="pill ${cls}">${lab}</span></div>
-      <p class="muted">${T.n ? `${T.k} of ${T.n} correct (${pct(T.k, T.n)}) across these tests; about ${Math.round((100 * T.exp) / T.n)}% expected at your level.` : 'No questions from this topic in these tests yet.'}</p>
+      <p class="muted">${T.n ? `${T.k} of ${T.n} correct (${pct(T.k, T.n)}) across these tests; about ${Math.round((100 * T.exp) / T.n)}% expected at your level.${T.mn ? ` ${CTX.fmtTime(T.ms / T.mn)} per question, against ${CTX.fmtTime(A.time.ms / A.time.n)} across all topics.` : ''}` : 'No questions from this topic in these tests yet.'}</p>
       ${T.per.some(c => c.n) ? `<div class="spark-row"><span class="tk-l">Accuracy per test</span>${sparkSVG(T.per)}</div>` : ''}
       ${types.length ? `<table class="bp types"><thead><tr><th>Question type</th><th class="r">Correct</th></tr></thead><tbody>${types.map(([it, t]) => `<tr><td><span class="ty-n">${it.name}</span><span class="ty-t">${it.tip}</span></td><td class="r num">${t.k} / ${t.n}</td></tr>`).join('')}</tbody></table>` : ''}
       <div class="end-row"><button class="btn primary" data-practice="${k}">Practice ${E.SHORT[k].toLowerCase()} · 8 questions</button><button class="btn small tutor-btn" data-plan="${k}">Make me a study plan for this topic</button></div>`;
@@ -371,10 +378,11 @@
   function planSummary(A, ctx, topicKey) {
     const { E, BAND_NAMES } = ctx, H = A.hist, L = [];
     L.push(`Tests taken: ${H.length}.`);
-    L.push('Scores over time (200–300 scale): ' + H.map((h, i) => `#${i + 1} ${dateStr(h.t)}: ${h.score} (${BAND_NAMES[E.bandOf(h.score)]})`).join('; ') + '.');
+    L.push('Scores over time (200–300 scale): ' + H.map((h, i) => `#${i + 1} ${dateStr(h.t)}: ${h.score} (${BAND_NAMES[E.bandOf(h.score)]})${h.ms > 0 ? `, ${ctx.fmtTime(h.ms)} total` : ''}`).join('; ') + '.');
     if (H.length) L.push(`Latest score ${H[H.length - 1].score}; recent average ${E.toScore(A.thNow)}; best ${Math.max(...H.map(h => h.score))}.`);
     L.push(`\nBy topic, across the ${A.win.length} most recent tests (your accuracy vs. the accuracy expected at your level):`);
-    for (const k of A.cats) { const T = A.topic[k]; if (T.n) L.push(`- ${E.CATS[k]}: ${T.k}/${T.n} correct (${pct(T.k, T.n)}), expected about ${Math.round((100 * T.exp) / T.n)}% — ${statusOf(T)[1]}`); }
+    for (const k of A.cats) { const T = A.topic[k]; if (T.n) L.push(`- ${E.CATS[k]}: ${T.k}/${T.n} correct (${pct(T.k, T.n)}), expected about ${Math.round((100 * T.exp) / T.n)}% — ${statusOf(T)[1]}${T.mn ? `; ${ctx.fmtTime(T.ms / T.mn)} per question` : ''}`); }
+    if (A.time.n) L.push(`Average time per question across these tests: ${ctx.fmtTime(A.time.ms / A.time.n)} (minutes:seconds).`);
     const missed = Object.entries(A.ids).filter(([, t]) => t.miss > 0).sort((a, b) => b[1].miss - a[1].miss || b[1].sur - a[1].sur).slice(0, 10);
     if (missed.length) {
       L.push('\nQuestion types missed most:');

@@ -2,8 +2,8 @@
    A simulated learner aiming for a score: it answers a question correctly when the question's difficulty,
    on the score scale, is at or below the target, and picks a wrong choice otherwise. Every click goes
    through the real page: the Start button, the answer buttons and Next.
-   Usage in the page: await QAS_DRIVE(256)  ->  {score, correct, topics, qids, ...} */
-window.QAS_DRIVE = async function (target, { keys = false } = {}) {
+   Usage in the page: await QAS_DRIVE(256) or QAS_DRIVE(256, { think: n => 500 + 100 * n })  ->  {score, correct, topics, qids, ...} */
+window.QAS_DRIVE = async function (target, { keys = false, think = 0 } = {}) {  // think: ms to wait on each question, or a function of the question number
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const waitFor = async (sel, ms = 8000) => { const t0 = Date.now(); for (;;) { const el = document.querySelector(sel); if (el) return el; if (Date.now() - t0 > ms) throw new Error('timeout waiting for ' + sel); await sleep(30); } };
   const D = window.QAS_BANKDATA, E = window.QAS_ENGINE, B = window.QAS_ITEMS.BANK;
@@ -23,6 +23,7 @@ window.QAS_DRIVE = async function (target, { keys = false } = {}) {
     const b = typeB(hit.id), score = E.toScore(b), right = score <= target;
     const pick = right ? hit.x.ans : (hit.x.ans + 1) % 4;
     const calc = !!document.querySelector('.calc-badge');
+    const wait = typeof think === 'function' ? think(n) : think; if (wait) await sleep(wait);
     if (keys) document.dispatchEvent(new KeyboardEvent('keydown', { key: String(pick + 1), bubbles: true }));
     else document.querySelector(`.choice[data-i="${pick}"]`).click();
     const next = document.querySelector('#next');
